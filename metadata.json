@@ -1,0 +1,6 @@
+{
+  "name": "VigyapanAI - AI Video Ad Generator",
+  "description": "Generate high-converting, localized AI video ads and copy in 20+ Indian languages using Gemini and Veo 3.1. Starts at just ₹1.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["gemini_api"]
+}
