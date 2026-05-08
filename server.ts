@@ -162,9 +162,10 @@ app.post("/api/generate-video", async (req, res) => {
 async function startServer() {
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production" && process.env.VERCEL !== "1") {
-    // Only import vite dynamically in local dev
+    // Only import vite dynamically in local dev, hidden from static analysis
     try {
-      const viteModule = await import("vite");
+      const v = "vite";
+      const viteModule = await import(/* @vite-ignore */ v);
       const vite = await viteModule.createServer({
         server: { middlewareMode: true },
         appType: "spa",
