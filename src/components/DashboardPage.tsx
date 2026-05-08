@@ -28,6 +28,14 @@ export default function DashboardPage({ user, setUser, onLogout, navigate }: Pro
   const [tone, setTone] = useState('Energetic & Desi');
   const [platform, setPlatform] = useState('Instagram Reels');
   
+  const [activeTab, setActiveTab] = useState<'scripts' | 'image' | 'video'>('scripts');
+  
+  const [imagePrompt, setImagePrompt] = useState('');
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  
+  const [videoPrompt, setVideoPrompt] = useState('');
+  const [generatedStandaloneVideo, setGeneratedStandaloneVideo] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [results, setResults] = useState<string>('');
@@ -195,6 +203,94 @@ export default function DashboardPage({ user, setUser, onLogout, navigate }: Pro
     }
   };
 
+  const handleGenerateImage = async () => {
+    if (!imagePrompt) {
+      setError('Please enter a prompt for the image.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    
+    try {
+      if (window.aistudio && window.aistudio.hasSelectedApiKey) {
+        let hasKey = await window.aistudio.hasSelectedApiKey();
+        if (!hasKey) {
+           await window.aistudio.openSelectKey();
+        }
+      }
+
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY });
+      const response = await ai.models.generateImages({
+        model: 'imagen-3.0-generate-002',
+        prompt: imagePrompt,
+        config: {
+          numberOfImages: 1,
+          outputMimeType: 'image/jpeg',
+        }
+      });
+      
+      const base64Image = response.generatedImages[0].image.imageBytes;
+      setGeneratedImageUrl(`data:image/jpeg;base64,${base64Image}`);
+    } catch (e: any) {
+      setError('Failed to generate image: ' + e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerateStandaloneVideo = async () => {
+    if (!videoPrompt) {
+      setError('Please enter a prompt for the video.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    
+    try {
+      if (window.aistudio && window.aistudio.hasSelectedApiKey) {
+        let hasKey = await window.aistudio.hasSelectedApiKey();
+        if (!hasKey) {
+           await window.aistudio.openSelectKey();
+        }
+      }
+
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY });
+      let operation = await ai.models.generateVideos({
+        model: 'veo-3.1-lite-generate-preview',
+        prompt: videoPrompt,
+        config: {
+          numberOfVideos: 1,
+          resolution: '1080p',
+          aspectRatio: '16:9'
+        }
+      });
+      
+      while (!operation.done) {
+        await new Promise(resolve => setTimeout(resolve, 8000));
+        operation = await ai.operations.getVideosOperation({ operation: operation });
+      }
+      
+      const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
+      if (!downloadLink) throw new Error("Video generation completed but no URL returned.");
+      
+      const videoRes = await fetch(downloadLink, {
+        method: 'GET',
+        headers: {
+          'x-goog-api-key': process.env.API_KEY || process.env.GEMINI_API_KEY || ''
+        }
+      });
+      
+      if (!videoRes.ok) throw new Error("Failed to fetch generated video.");
+      
+      const blob = await videoRes.blob();
+      setGeneratedStandaloneVideo(URL.createObjectURL(blob));
+    } catch (e: any) {
+      setError('Failed to generate video: ' + e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     alert('Copied to clipboard!');
@@ -311,87 +407,185 @@ export default function DashboardPage({ user, setUser, onLogout, navigate }: Pro
 
       <div className="flex-1 overflow-hidden grid lg:grid-cols-[360px_1fr] h-[calc(100vh-57px)]">
         {/* FORM PANEL */}
-        <div className="p-6 overflow-y-auto bg-[var(--card)] border-r border-[var(--border)]">
-          {error && <div className="text-red-400 mb-4 text-sm font-semibold">{error}</div>}
+        <div className="flex flex-col border-r border-[var(--border)] bg-[var(--card)]">
+          <div className="flex border-b border-[var(--border)]">
+            <button onClick={() => setActiveTab('scripts')} className={`flex-1 py-4 text-[0.85rem] font-bold transition-colors border-b-2 ${activeTab === 'scripts' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/50 border-transparent hover:text-white/80'}`}>Scripts</button>
+            <button onClick={() => setActiveTab('image')} className={`flex-1 py-4 text-[0.85rem] font-bold transition-colors border-b-2 ${activeTab === 'image' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/50 border-transparent hover:text-white/80'}`}>Images</button>
+            <button onClick={() => setActiveTab('video')} className={`flex-1 py-4 text-[0.85rem] font-bold transition-colors border-b-2 ${activeTab === 'video' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/50 border-transparent hover:text-white/80'}`}>Videos</button>
+          </div>
           
-          <div className="mb-5">
-            <div className="fp-label">Product / Service <span className="fp-label-hi">प्रोडक्ट</span></div>
-            <input value={product} onChange={e => setProduct(e.target.value)} className="w-full bg-white/5 border border-[var(--border)] text-white px-3.5 py-2.5 rounded-[11px] text-[0.9rem] outline-none transition-all duration-300 focus:border-[var(--saffron)] focus:scale-[1.02] focus:shadow-[0_0_15px_rgba(255,107,0,0.15)] placeholder:text-white/25" placeholder="e.g. Herbal face cream..." />
-          </div>
-
-          <div className="mb-5">
-            <div className="fp-label">Description <span className="fp-label-hi">विवरण</span></div>
-            <textarea value={desc} onChange={e => setDesc(e.target.value)} className="w-full bg-white/5 border border-[var(--border)] text-white px-3.5 py-2.5 rounded-[11px] text-[0.9rem] outline-none transition-all duration-300 focus:border-[var(--saffron)] focus:scale-[1.02] focus:shadow-[0_0_15px_rgba(255,107,0,0.15)] placeholder:text-white/25 resize-y min-h-[76px]" placeholder="Kya karta hai? Koi offer?"></textarea>
-          </div>
-
-          <div className="mb-5">
-            <div className="fp-label">Target Audience <span className="fp-label-hi">दर्शक</span></div>
-            <select value={audience} onChange={e => setAudience(e.target.value)} className="w-full bg-[#1A0700] border border-[var(--border)] text-white px-3.5 py-2.5 rounded-[11px] text-[0.9rem] outline-none transition-all duration-300 focus:border-[var(--saffron)] focus:scale-[1.02] focus:shadow-[0_0_15px_rgba(255,107,0,0.15)]">
-              <option value="housewives">👩‍🍳 Housewives & Homemakers</option>
-              <option value="youth">👦 Youth (18-25)</option>
-              <option value="general Indian audience">🇮🇳 General Indian Audience</option>
-            </select>
-          </div>
-
-          <div className="mb-5">
-            <div className="fp-label">Language <span className="fp-label-hi">भाषा</span></div>
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                {label: 'Hinglish', v: 'Hinglish (Hindi + English)', hi: 'हिंग्लिश ✨'},
-                {label: 'Hindi', v: 'Hindi', hi: 'हिन्दी'},
-                {label: 'Tamil', v: 'Tamil', hi: 'தமிழ்'},
-                {label: 'Telugu', v: 'Telugu', hi: 'తెలుగు'}
-              ].map(x => (
-                <div key={x.v} onClick={() => setLang(x.v)} className={`bg-white/5 border rounded-lg px-3 py-2 cursor-pointer text-[0.78rem] text-center transition-all duration-300 select-none hover:scale-[1.02] ${lang === x.v ? 'bg-[rgba(255,107,0,0.14)] border-[var(--saffron)] text-[var(--gold)] scale-[1.02] shadow-[0_0_10px_rgba(255,107,0,0.15)]' : 'border-[var(--border)] hover:border-[var(--saffron)]'}`}>
-                  {x.label} <span className={`block text-[0.68rem] mt-0.5 transition-colors ${lang === x.v ? 'text-[#ffb80099]' : 'text-[var(--muted)]'}`}>{x.hi}</span>
+          <div className="p-6 overflow-y-auto flex-1">
+            {error && <div className="text-red-400 mb-4 text-sm font-semibold">{error}</div>}
+            
+            {activeTab === 'scripts' && (
+              <>
+                <div className="mb-5">
+                  <div className="fp-label">Product / Service <span className="fp-label-hi">प्रोडक्ट</span></div>
+                  <input value={product} onChange={e => setProduct(e.target.value)} className="w-full bg-white/5 border border-[var(--border)] text-white px-3.5 py-2.5 rounded-[11px] text-[0.9rem] outline-none transition-all duration-300 focus:border-[var(--saffron)] focus:scale-[1.02] focus:shadow-[0_0_15px_rgba(255,107,0,0.15)] placeholder:text-white/25" placeholder="e.g. Herbal face cream..." />
                 </div>
-              ))}
-            </div>
-          </div>
 
-          <div className="mb-5">
-            <div className="fp-label">Tone <span className="fp-label-hi">टोन</span></div>
-            <div className="flex gap-2 flex-wrap">
-              {['Energetic & Desi', 'Emotional & Heartfelt', 'Funny & Witty'].map(t => (
-                <div key={t} onClick={() => setTone(t)} className={`px-3 py-1.5 rounded-lg border text-[0.78rem] cursor-pointer transition-all duration-300 hover:scale-[1.05] ${tone === t ? 'bg-[rgba(255,107,0,0.14)] border-[var(--saffron)] text-[var(--gold)] scale-[1.05] shadow-[0_0_10px_rgba(255,107,0,0.15)]' : 'bg-white/5 border-[var(--border)] hover:border-[var(--saffron)]'}`}>
-                  {t.split(' ')[0]}
+                <div className="mb-5">
+                  <div className="fp-label">Description <span className="fp-label-hi">विवरण</span></div>
+                  <textarea value={desc} onChange={e => setDesc(e.target.value)} className="w-full bg-white/5 border border-[var(--border)] text-white px-3.5 py-2.5 rounded-[11px] text-[0.9rem] outline-none transition-all duration-300 focus:border-[var(--saffron)] focus:scale-[1.02] focus:shadow-[0_0_15px_rgba(255,107,0,0.15)] placeholder:text-white/25 resize-y min-h-[76px]" placeholder="Kya karta hai? Koi offer?"></textarea>
                 </div>
-              ))}
-            </div>
-          </div>
 
-          <div className="mb-5">
-            <div className="fp-label">Platform <span className="fp-label-hi">प्लेटफॉर्म</span></div>
-            <div className="flex gap-2 flex-wrap">
-              {['Instagram Reels', 'YouTube Shorts', 'Facebook'].map(p => (
-                <div key={p} onClick={() => setPlatform(p)} className={`px-3 py-1.5 rounded-lg border text-[0.78rem] cursor-pointer transition-all duration-300 hover:scale-[1.05] ${platform === p ? 'bg-[rgba(255,107,0,0.14)] border-[var(--saffron)] text-[var(--gold)] scale-[1.05] shadow-[0_0_10px_rgba(255,107,0,0.15)]' : 'bg-white/5 border-[var(--border)] hover:border-[var(--saffron)]'}`}>
-                  {p}
+                <div className="mb-5">
+                  <div className="fp-label">Target Audience <span className="fp-label-hi">दर्शक</span></div>
+                  <select value={audience} onChange={e => setAudience(e.target.value)} className="w-full bg-[#1A0700] border border-[var(--border)] text-white px-3.5 py-2.5 rounded-[11px] text-[0.9rem] outline-none transition-all duration-300 focus:border-[var(--saffron)] focus:scale-[1.02] focus:shadow-[0_0_15px_rgba(255,107,0,0.15)]">
+                    <option value="housewives">👩‍🍳 Housewives & Homemakers</option>
+                    <option value="youth">👦 Youth (18-25)</option>
+                    <option value="general Indian audience">🇮🇳 General Indian Audience</option>
+                  </select>
                 </div>
-              ))}
-            </div>
-          </div>
 
-          <button onClick={handleGenerate} disabled={loading} className="w-full p-4 rounded-xl bg-gradient-to-br from-[var(--saffron)] to-[var(--gold)] text-[#1A0700] font-extrabold text-[0.98rem] border-none flex items-center justify-center gap-2 font-['Baloo_2'] shadow-[0_6px_24px_rgba(255,107,0,0.3)] hover:-translate-y-0.5 transition-all disabled:opacity-50">
-            {loading ? 'Please wait...' : '✨ विज्ञापन बनाएं — Generate Ads'}
-          </button>
+                <div className="mb-5">
+                  <div className="fp-label">Language <span className="fp-label-hi">भाषा</span></div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      {label: 'Hinglish', v: 'Hinglish (Hindi + English)', hi: 'हिंग्लिश ✨'},
+                      {label: 'Hindi', v: 'Hindi', hi: 'हिन्दी'},
+                      {label: 'Tamil', v: 'Tamil', hi: 'தமிழ்'},
+                      {label: 'Telugu', v: 'Telugu', hi: 'తెలుగు'}
+                    ].map(x => (
+                      <div key={x.v} onClick={() => setLang(x.v)} className={`bg-white/5 border rounded-lg px-3 py-2 cursor-pointer text-[0.78rem] text-center transition-all duration-300 select-none hover:scale-[1.02] ${lang === x.v ? 'bg-[rgba(255,107,0,0.14)] border-[var(--saffron)] text-[var(--gold)] scale-[1.02] shadow-[0_0_10px_rgba(255,107,0,0.15)]' : 'border-[var(--border)] hover:border-[var(--saffron)]'}`}>
+                        {x.label} <span className={`block text-[0.68rem] mt-0.5 transition-colors ${lang === x.v ? 'text-[#ffb80099]' : 'text-[var(--muted)]'}`}>{x.hi}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mb-5">
+                  <div className="fp-label">Tone <span className="fp-label-hi">टोन</span></div>
+                  <div className="flex gap-2 flex-wrap">
+                    {['Energetic & Desi', 'Emotional & Heartfelt', 'Funny & Witty'].map(t => (
+                      <div key={t} onClick={() => setTone(t)} className={`px-3 py-1.5 rounded-lg border text-[0.78rem] cursor-pointer transition-all duration-300 hover:scale-[1.05] ${tone === t ? 'bg-[rgba(255,107,0,0.14)] border-[var(--saffron)] text-[var(--gold)] scale-[1.05] shadow-[0_0_10px_rgba(255,107,0,0.15)]' : 'bg-white/5 border-[var(--border)] hover:border-[var(--saffron)]'}`}>
+                        {t.split(' ')[0]}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mb-5">
+                  <div className="fp-label">Platform <span className="fp-label-hi">प्लेटफॉर्म</span></div>
+                  <div className="flex gap-2 flex-wrap">
+                    {['Instagram Reels', 'YouTube Shorts', 'Facebook'].map(p => (
+                      <div key={p} onClick={() => setPlatform(p)} className={`px-3 py-1.5 rounded-lg border text-[0.78rem] cursor-pointer transition-all duration-300 hover:scale-[1.05] ${platform === p ? 'bg-[rgba(255,107,0,0.14)] border-[var(--saffron)] text-[var(--gold)] scale-[1.05] shadow-[0_0_10px_rgba(255,107,0,0.15)]' : 'bg-white/5 border-[var(--border)] hover:border-[var(--saffron)]'}`}>
+                        {p}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <button onClick={handleGenerate} disabled={loading} className="w-full p-4 rounded-xl bg-gradient-to-br from-[var(--saffron)] to-[var(--gold)] text-[#1A0700] font-extrabold text-[0.98rem] border-none flex items-center justify-center gap-2 font-['Baloo_2'] shadow-[0_6px_24px_rgba(255,107,0,0.3)] hover:-translate-y-0.5 transition-all disabled:opacity-50">
+                  {loading ? 'Please wait...' : '✨ विज्ञापन बनाएं — Generate Ads'}
+                </button>
+              </>
+            )}
+
+            {activeTab === 'image' && (
+              <>
+                <div className="mb-5">
+                  <div className="fp-label">Image Prompt <span className="fp-label-hi">प्रॉम्प्ट</span></div>
+                  <textarea value={imagePrompt} onChange={e => setImagePrompt(e.target.value)} className="w-full bg-white/5 border border-[var(--border)] text-white px-3.5 py-2.5 rounded-[11px] text-[0.9rem] outline-none transition-all duration-300 focus:border-[var(--saffron)] focus:scale-[1.02] focus:shadow-[0_0_15px_rgba(255,107,0,0.15)] placeholder:text-white/25 resize-y min-h-[120px]" placeholder="Describe the image you want. e.g. A high quality editorial shot of a herbal face cream jar..."></textarea>
+                </div>
+                <button onClick={handleGenerateImage} disabled={loading} className="w-full p-4 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-extrabold text-[0.98rem] border-none flex items-center justify-center gap-2 shadow-[0_6px_24px_rgba(79,70,229,0.3)] hover:-translate-y-0.5 transition-all disabled:opacity-50">
+                  {loading ? 'Generating...' : '🖼️ Generate Image'}
+                </button>
+              </>
+            )}
+
+            {activeTab === 'video' && (
+              <>
+                <div className="mb-5">
+                  <div className="fp-label">Video Prompt <span className="fp-label-hi">प्रॉम्प्ट</span></div>
+                  <textarea value={videoPrompt} onChange={e => setVideoPrompt(e.target.value)} className="w-full bg-white/5 border border-[var(--border)] text-white px-3.5 py-2.5 rounded-[11px] text-[0.9rem] outline-none transition-all duration-300 focus:border-[var(--saffron)] focus:scale-[1.02] focus:shadow-[0_0_15px_rgba(255,107,0,0.15)] placeholder:text-white/25 resize-y min-h-[120px]" placeholder="Describe the video. e.g. A cinematic slow motion shot of water splashing on a face cream..."></textarea>
+                </div>
+                <button onClick={handleGenerateStandaloneVideo} disabled={loading} className="w-full p-4 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 text-white font-extrabold text-[0.98rem] border-none flex items-center justify-center gap-2 shadow-[0_6px_24px_rgba(236,72,153,0.3)] hover:-translate-y-0.5 transition-all disabled:opacity-50">
+                  {loading ? 'Generating...' : '🎥 Generate Video'}
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
         {/* OUTPUT PANEL */}
         <div className="p-8 overflow-y-auto bg-[var(--dark)]">
-          {!results && !loading ? (
-            <div className="h-full flex flex-col items-center justify-center text-center p-10">
-              <div className="text-[3.8rem] mb-4 opacity-35">🎬</div>
-              <h3 className="text-[1.2rem] text-[var(--muted)] font-medium mb-2">आपका AI Ad यहाँ आएगा</h3>
-              <p className="text-white/30 text-[0.88rem]">Fill the form on the left and click Generate.<br/>4 ad scripts will appear here instantly.</p>
-            </div>
-          ) : loading ? (
-             <div className="h-full flex flex-col items-center justify-center text-center p-10">
-               <div className="w-[60px] h-[60px] rounded-full border-4 border-[rgba(255,107,0,0.2)] border-t-[var(--saffron)] animate-spin mb-4" />
-               <div className="text-[1.1rem] font-semibold text-[var(--gold)] mb-2">AI kaam kar raha hai... ✨</div>
-               <div className="text-[0.85rem] text-[var(--muted)]">Generating your Indian ad copy securely.</div>
-             </div>
-          ) : (
-            renderSections()
+          {activeTab === 'scripts' && (
+            !results && !loading ? (
+              <div className="h-full flex flex-col items-center justify-center text-center p-10">
+                <div className="text-[3.8rem] mb-4 opacity-35">🎬</div>
+                <h3 className="text-[1.2rem] text-[var(--muted)] font-medium mb-2">आपका AI Ad यहाँ आएगा</h3>
+                <p className="text-white/30 text-[0.88rem]">Fill the form on the left and click Generate.<br/>4 ad scripts will appear here instantly.</p>
+              </div>
+            ) : loading ? (
+               <div className="h-full flex flex-col items-center justify-center text-center p-10">
+                 <div className="w-[60px] h-[60px] rounded-full border-4 border-[rgba(255,107,0,0.2)] border-t-[var(--saffron)] animate-spin mb-4" />
+                 <div className="text-[1.1rem] font-semibold text-[var(--gold)] mb-2">AI kaam kar raha hai... ✨</div>
+                 <div className="text-[0.85rem] text-[var(--muted)]">Generating your Indian ad copy securely.</div>
+               </div>
+            ) : (
+              renderSections()
+            )
+          )}
+
+          {activeTab === 'image' && (
+            !generatedImageUrl && !loading ? (
+              <div className="h-full flex flex-col items-center justify-center text-center p-10">
+                <div className="text-[3.8rem] mb-4 opacity-35">🖼️</div>
+                <h3 className="text-[1.2rem] text-[var(--muted)] font-medium mb-2">आपके Ad Images यहाँ आएंगें</h3>
+                <p className="text-white/30 text-[0.88rem]">Describe the image and click Generate.<br/>Your image will appear here instantly.</p>
+              </div>
+            ) : loading ? (
+               <div className="h-full flex flex-col items-center justify-center text-center p-10">
+                 <div className="w-[60px] h-[60px] rounded-full border-4 border-[rgba(79,70,229,0.2)] border-t-indigo-500 animate-spin mb-4" />
+                 <div className="text-[1.1rem] font-semibold text-indigo-400 mb-2">Generating Image... ✨</div>
+                 <div className="text-[0.85rem] text-[var(--muted)]">Using Imagen 3 to create high quality visuals.</div>
+               </div>
+            ) : generatedImageUrl && (
+              <div className="animate-[cardIn_0.45s_ease_both]">
+                <div className="ad-card relative overflow-hidden bg-[var(--card)] border border-[var(--border)] rounded-[18px] p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 px-3 py-1 rounded-full text-[0.7rem] font-bold uppercase tracking-wide">AI GENERATED IMAGE</div>
+                  </div>
+                  <img src={generatedImageUrl} alt="Generated" className="w-full rounded-xl border border-white/10" />
+                  <div className="mt-4 flex gap-2">
+                    <a href={generatedImageUrl} download="VigyapanAI_Image.jpg" className="flex-1 bg-white/10 hover:bg-white/20 text-white font-bold py-2 px-3 justify-center rounded-lg text-center transition-colors flex items-center gap-1.5 no-underline">
+                      ⬇️ Download Output
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )
+          )}
+
+          {activeTab === 'video' && (
+            !generatedStandaloneVideo && !loading ? (
+              <div className="h-full flex flex-col items-center justify-center text-center p-10">
+                <div className="text-[3.8rem] mb-4 opacity-35">🎥</div>
+                <h3 className="text-[1.2rem] text-[var(--muted)] font-medium mb-2">आपके Ad Videos यहाँ आएंगें</h3>
+                <p className="text-white/30 text-[0.88rem]">Describe the video and click Generate.<br/>It may take 1-3 minutes.</p>
+              </div>
+            ) : loading ? (
+               <div className="h-full flex flex-col items-center justify-center text-center p-10">
+                 <div className="w-[60px] h-[60px] rounded-full border-4 border-[rgba(236,72,153,0.2)] border-t-pink-500 animate-spin mb-4" />
+                 <div className="text-[1.1rem] font-semibold text-pink-400 mb-2">Generating Video... ✨</div>
+                 <div className="text-[0.85rem] text-[var(--muted)]">Using Veo 3.1 to generate your standalone video. This usually takes 1-3 minutes. Hang tight!</div>
+               </div>
+            ) : generatedStandaloneVideo && (
+              <div className="animate-[cardIn_0.45s_ease_both]">
+                <div className="ad-card relative overflow-hidden bg-[var(--card)] border border-[var(--border)] rounded-[18px] p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="bg-pink-500/15 border border-pink-500/30 text-pink-400 px-3 py-1 rounded-full text-[0.7rem] font-bold uppercase tracking-wide">AI GENERATED VIDEO</div>
+                  </div>
+                  <video src={generatedStandaloneVideo} controls autoPlay loop className="w-full rounded-xl border border-white/10 bg-black min-h-[300px]" />
+                  <div className="mt-4 flex gap-2">
+                    <a href={generatedStandaloneVideo} download="VigyapanAI_Video.mp4" className="flex-1 bg-white/10 hover:bg-white/20 text-white font-bold py-2 px-3 justify-center rounded-lg text-center transition-colors flex items-center gap-1.5 no-underline">
+                      ⬇️ Download Video
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )
           )}
         </div>
       </div>

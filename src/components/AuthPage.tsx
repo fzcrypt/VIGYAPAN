@@ -40,11 +40,11 @@ export default function AuthPage({ mode, navigate, onAuth }: Props) {
         data = JSON.parse(text);
       } catch (e) {
         console.warn('API parsing failed. Falling back to dummy login for preview.', text.substring(0, 50));
-        data = { token: "dummy-token", user: { name: name || "User", email: email, credits: 0, plan: "free" } };
+        data = { token: "dummy-token", user: { name: name || "User", email: email, credits: 100, plan: "free" } };
       }
       if (!res.ok) {
-        console.warn('API error, but continuing for preview mode.', data.error);
-        data = { token: "dummy-token", user: { name: name || "User", email: email, credits: 0, plan: "free" } };
+        console.warn('API error, but continuing for preview mode.', data?.error);
+        data = { token: "dummy-token", user: { name: name || "User", email: email, credits: 100, plan: "free" } };
       }
 
       onAuth(data.user);
