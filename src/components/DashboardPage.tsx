@@ -415,6 +415,12 @@ export default function DashboardPage({ user, setUser, onLogout, navigate }: Pro
           </div>
           
           <div className="p-6 overflow-y-auto flex-1">
+            <div className="mb-6 p-4 rounded-xl bg-[var(--dark)] border border-[var(--border)] text-[0.85rem] text-white/70 leading-relaxed font-medium">
+              {activeTab === 'scripts' && "📝 Generate text ad copy and spoken scripts. Perfect for social media captions, voiceovers, and planning your next ad campaign."}
+              {activeTab === 'image' && "🖼️ Generate high-quality standalone images using Google's Imagen. Perfect for static posts, banners, and thumbnails."}
+              {activeTab === 'video' && "🎥 Paste your generated script or prompt here to generate cinematic video clips."}
+            </div>
+
             {error && <div className="text-red-400 mb-4 text-sm font-semibold">{error}</div>}
             
             {activeTab === 'scripts' && (
@@ -569,7 +575,7 @@ export default function DashboardPage({ user, setUser, onLogout, navigate }: Pro
                <div className="h-full flex flex-col items-center justify-center text-center p-10">
                  <div className="w-[60px] h-[60px] rounded-full border-4 border-[rgba(236,72,153,0.2)] border-t-pink-500 animate-spin mb-4" />
                  <div className="text-[1.1rem] font-semibold text-pink-400 mb-2">Generating Video... ✨</div>
-                 <div className="text-[0.85rem] text-[var(--muted)]">Using Veo 3.1 to generate your standalone video. This usually takes 1-3 minutes. Hang tight!</div>
+                 <div className="text-[0.85rem] text-[var(--muted)]">Generating your standalone video. This usually takes 1-3 minutes. Hang tight!</div>
                </div>
             ) : generatedStandaloneVideo && (
               <div className="animate-[cardIn_0.45s_ease_both]">

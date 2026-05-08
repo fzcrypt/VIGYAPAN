@@ -2,9 +2,11 @@ import React from 'react';
 
 type Props = {
   navigate: (page: 'landing' | 'login' | 'register' | 'app') => void;
+  user?: { name: string, email: string } | null;
+  onLogout?: () => void;
 };
 
-export default function LandingPage({ navigate }: Props) {
+export default function LandingPage({ navigate, user, onLogout }: Props) {
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -20,9 +22,19 @@ export default function LandingPage({ navigate }: Props) {
           <a href="#pricing" onClick={(e) => { e.preventDefault(); scrollTo('pricing'); }} className="text-[var(--muted)] text-sm font-medium hover:text-[var(--gold)] transition-colors cursor-pointer">Pricing</a>
           <a href="#reviews" onClick={(e) => { e.preventDefault(); scrollTo('reviews'); }} className="text-[var(--muted)] text-sm font-medium hover:text-[var(--gold)] transition-colors cursor-pointer">Reviews</a>
         </div>
-        <div className="flex gap-2">
-          <button className="bg-transparent border border-[var(--border)] text-white px-5 py-2 rounded-xl text-sm font-semibold hover:border-[var(--saffron)] hover:text-[var(--saffron)] transition-all" onClick={() => navigate('login')}>Login</button>
-          <button className="bg-gradient-to-br from-[var(--saffron)] to-[var(--gold)] text-[#1A0700] px-6 py-2 rounded-xl text-sm font-extrabold shadow-[0_4px_20px_rgba(255,107,0,0.3)] hover:-translate-y-px hover:shadow-[0_8px_28px_rgba(255,107,0,0.45)] transition-all" onClick={() => navigate('register')}>मुफ्त शुरू करें 🚀</button>
+        <div className="flex items-center gap-4">
+          {user ? (
+            <>
+              <span className="text-white/80 text-sm hidden md:inline-block">Hi, {user.name}</span>
+              <button className="bg-transparent border border-[var(--border)] text-white px-5 py-2 rounded-xl text-sm font-semibold hover:border-[var(--saffron)] hover:text-[var(--saffron)] transition-all" onClick={onLogout}>Logout</button>
+              <button className="bg-gradient-to-br from-[var(--saffron)] to-[var(--gold)] text-[#1A0700] px-6 py-2 rounded-xl text-sm font-extrabold shadow-[0_4px_20px_rgba(255,107,0,0.3)] hover:-translate-y-px hover:shadow-[0_8px_28px_rgba(255,107,0,0.45)] transition-all" onClick={() => navigate('app')}>Dashboard 🚀</button>
+            </>
+          ) : (
+            <>
+              <button className="bg-transparent border border-[var(--border)] text-white px-5 py-2 rounded-xl text-sm font-semibold hover:border-[var(--saffron)] hover:text-[var(--saffron)] transition-all" onClick={() => navigate('login')}>Login</button>
+              <button className="bg-gradient-to-br from-[var(--saffron)] to-[var(--gold)] text-[#1A0700] px-6 py-2 rounded-xl text-sm font-extrabold shadow-[0_4px_20px_rgba(255,107,0,0.3)] hover:-translate-y-px hover:shadow-[0_8px_28px_rgba(255,107,0,0.45)] transition-all" onClick={() => navigate('register')}>मुफ्त शुरू करें 🚀</button>
+            </>
+          )}
         </div>
       </nav>
 
@@ -38,7 +50,9 @@ export default function LandingPage({ navigate }: Props) {
           No agency. No studio. Just type your product and get 4 ready-to-post ad scripts instantly.
         </p>
         <div className="flex gap-4 justify-center flex-wrap animate-[fadeUp_0.6s_0.4s_ease_both] mb-16">
-          <button className="bg-gradient-to-br from-[var(--saffron)] to-[var(--gold)] text-[#1A0700] px-10 py-4 rounded-2xl border-none cursor-pointer text-lg font-extrabold font-['Baloo_2'] shadow-[0_8px_32px_rgba(255,107,0,0.4)] hover:-translate-y-0.5 hover:shadow-[0_14px_40px_rgba(255,107,0,0.55)] transition-all" onClick={() => navigate('register')}>✨ Start ₹1 Trial (10 Ads) 🚀</button>
+          <button className="bg-gradient-to-br from-[var(--saffron)] to-[var(--gold)] text-[#1A0700] px-10 py-4 rounded-2xl border-none cursor-pointer text-lg font-extrabold font-['Baloo_2'] shadow-[0_8px_32px_rgba(255,107,0,0.4)] hover:-translate-y-0.5 hover:shadow-[0_14px_40px_rgba(255,107,0,0.55)] transition-all" onClick={() => user ? navigate('app') : navigate('register')}>
+            {user ? '✨ Go to Dashboard 🚀' : '✨ Start ₹1 Trial (10 Ads) 🚀'}
+          </button>
           <button className="bg-white/5 text-white px-9 py-4 rounded-2xl border border-white/15 cursor-pointer text-base font-semibold transition-colors hover:bg-white/10" onClick={() => scrollTo('how')}>देखें कैसे काम करता है →</button>
         </div>
         <div className="flex gap-14 justify-center flex-wrap animate-[fadeUp_0.6s_0.5s_ease_both]">
@@ -291,7 +305,9 @@ export default function LandingPage({ navigate }: Props) {
         <div className="font-['Baloo_2'] text-[1.4rem] text-[var(--gold)] mb-3">अभी शुरू करें — देर किस बात की?</div>
         <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-extrabold mb-3">India's Ad Revolution<br/>Starts Here</h2>
         <p className="text-[var(--muted)] max-w-[500px] mx-auto text-base mb-9">Unlock instant AI copywriting. Securely test the tool with a ₹1 verification charge to try 10 ad generations today.</p>
-        <button className="bg-gradient-to-br from-[var(--saffron)] to-[var(--gold)] text-[#1A0700] px-10 py-4 rounded-2xl border-none cursor-pointer text-lg font-extrabold font-['Baloo_2'] shadow-[0_8px_32px_rgba(255,107,0,0.4)] hover:-translate-y-0.5 hover:shadow-[0_14px_40px_rgba(255,107,0,0.55)] transition-all" onClick={() => navigate('register')}>✨ ₹1 Trial 🚀</button>
+        <button className="bg-gradient-to-br from-[var(--saffron)] to-[var(--gold)] text-[#1A0700] px-10 py-4 rounded-2xl border-none cursor-pointer text-lg font-extrabold font-['Baloo_2'] shadow-[0_8px_32px_rgba(255,107,0,0.4)] hover:-translate-y-0.5 hover:shadow-[0_14px_40px_rgba(255,107,0,0.55)] transition-all" onClick={() => user ? navigate('app') : navigate('register')}>
+          {user ? '✨ Go to Dashboard 🚀' : '✨ ₹1 Trial 🚀'}
+        </button>
       </section>
 
       {/* FOOTER */}

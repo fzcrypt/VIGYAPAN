@@ -40,7 +40,7 @@ export default function App() {
 
   return (
     <>
-      {currentPage === 'landing' && <LandingPage navigate={setCurrentPage} />}
+      {currentPage === 'landing' && <LandingPage navigate={setCurrentPage} user={user} onLogout={handleLogout} />}
       {(currentPage === 'login' || currentPage === 'register') && (
         <AuthPage 
           mode={currentPage} 
