@@ -18,41 +18,13 @@ export default function AuthPage({ mode, navigate, onAuth }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password || (!isLogin && !name)) {
-      setError('Sab fields bharen');
+    if (email === 'faizk.gu@gmail.com' && password === '000000') {
+      onAuth({ name: "Faiz", email: "faizk.gu@gmail.com", credits: 100, plan: "pro" });
       return;
     }
-
-    setLoading(true);
-    setError('');
-
-    try {
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
-      });
-      const text = await res.text();
-      console.log('API response during auth:', text, 'Status:', res.status);
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (e) {
-        console.warn('API parsing failed. Falling back to dummy login for preview.', text.substring(0, 50));
-        data = { token: "dummy-token", user: { name: name || "User", email: email, credits: 100, plan: "free" } };
-      }
-      if (!res.ok) {
-        console.warn('API error, but continuing for preview mode.', data?.error);
-        data = { token: "dummy-token", user: { name: name || "User", email: email, credits: 100, plan: "free" } };
-      }
-
-      onAuth(data.user);
-    } catch (err: any) {
-      setError(err.message || 'Kuch galat ho gaya');
-    } finally {
-      setLoading(false);
-    }
+    
+    setError('Access restricted to authorized users only.');
+    return;
   };
 
   return (
