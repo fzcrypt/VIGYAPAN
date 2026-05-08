@@ -18,13 +18,25 @@ export default function AuthPage({ mode, navigate, onAuth }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email === 'faizk.gu@gmail.com' && password === '000000') {
-      onAuth({ name: "Faiz", email: "faizk.gu@gmail.com", credits: 100, plan: "pro" });
+    if (!email || !password || (!isLogin && !name)) {
+      setError('Sab fields bharen');
       return;
     }
-    
-    setError('Access restricted to authorized users only.');
-    return;
+
+    setLoading(true);
+    setError('');
+
+    // Simulate API call for preview purposes
+    setTimeout(() => {
+        const dummyUser = { 
+            name: name || "User", 
+            email: email, 
+            credits: 100, 
+            plan: "free" 
+        };
+        onAuth(dummyUser);
+        setLoading(false);
+    }, 800);
   };
 
   return (

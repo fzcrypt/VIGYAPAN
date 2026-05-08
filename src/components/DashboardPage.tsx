@@ -390,9 +390,9 @@ export default function DashboardPage({ user, setUser, onLogout, navigate }: Pro
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col h-screen overflow-hidden bg-[var(--bg)] text-[var(--fg)] relative">
       {/* TOPBAR */}
-      <div className="flex items-center justify-between px-7 py-3.5 bg-[#0D0700]/95 backdrop-blur-[12px] border-b border-[var(--border)] sticky top-0 z-50">
+      <div className="flex items-center justify-between px-7 py-3.5 bg-[#0D0700]/95 backdrop-blur-[12px] border-b border-[var(--border)] sticky top-0 z-50 shrink-0">
         <div className="topbar-logo" onClick={() => navigate('landing')}><em>Vigyapan</em>AI 🇮🇳</div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 bg-[#ffb8001a] border border-[#ffb80040] px-4 py-1.5 rounded-full text-[0.82rem] font-semibold">
@@ -405,23 +405,23 @@ export default function DashboardPage({ user, setUser, onLogout, navigate }: Pro
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col lg:grid lg:grid-cols-[360px_1fr] lg:h-[calc(100vh-57px)]">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative h-[calc(100vh-57px)]">
         {/* FORM PANEL */}
-        <div className="flex flex-col border-b lg:border-r border-[var(--border)] bg-[var(--card)] relative z-10 w-full">
+        <div className="flex flex-col border-b lg:border-r lg:border-b-0 border-[var(--border)] bg-[var(--card)] w-full lg:w-[360px] flex-1 lg:flex-none z-10 lg:h-full relative lg:max-h-full min-h-[40vh] lg:min-h-0 min-w-0">
           {/* TABS CONTAINER */}
-          <div className="flex shrink-0 border-b border-[var(--border)] bg-[#100800]" style={{ display: 'flex', width: '100%', minHeight: '55px', overflowX: 'auto', backgroundColor: '#100800' }}>
-            <button onClick={() => setActiveTab('scripts')} className={`flex-1 py-4 px-2 text-[0.85rem] font-bold transition-colors border-b-[3px] text-center ${activeTab === 'scripts' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/60 border-transparent hover:text-white hover:bg-white/[0.05]'}`} style={{ minWidth: '100px' }}>
+          <div className="grid grid-cols-3 w-full shrink-0 border-b border-[var(--border)] bg-[#100800] sticky top-0 z-20">
+            <button onClick={() => setActiveTab('scripts')} className={`py-3 px-1 text-[0.8rem] font-bold transition-colors border-b-[3px] text-center ${activeTab === 'scripts' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/60 border-transparent hover:text-white hover:bg-white/[0.05]'}`}>
               📝 Scripts
             </button>
-            <button onClick={() => setActiveTab('image')} className={`flex-1 py-4 px-2 text-[0.85rem] font-bold transition-colors border-b-[3px] text-center ${activeTab === 'image' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/60 border-transparent hover:text-white hover:bg-white/[0.05]'}`} style={{ minWidth: '100px' }}>
+            <button onClick={() => setActiveTab('image')} className={`py-3 px-1 text-[0.8rem] font-bold transition-colors border-b-[3px] text-center ${activeTab === 'image' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/60 border-transparent hover:text-white hover:bg-white/[0.05]'}`}>
               🖼️ Images
             </button>
-            <button onClick={() => setActiveTab('video')} className={`flex-1 py-4 px-2 text-[0.85rem] font-bold transition-colors border-b-[3px] text-center ${activeTab === 'video' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/60 border-transparent hover:text-white hover:bg-white/[0.05]'}`} style={{ minWidth: '100px' }}>
+            <button onClick={() => setActiveTab('video')} className={`py-3 px-1 text-[0.8rem] font-bold transition-colors border-b-[3px] text-center ${activeTab === 'video' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/60 border-transparent hover:text-white hover:bg-white/[0.05]'}`}>
               🎥 Videos
             </button>
           </div>
           
-          <div className="p-6 lg:overflow-y-auto flex-1 auto-rows-max">
+          <div className="p-6 overflow-y-auto flex-1 w-full relative bg-[var(--card)]">
             <div className="mb-6 p-4 rounded-xl bg-[var(--dark)] border border-[var(--border)] text-[0.85rem] text-white/70 leading-relaxed font-medium">
               {activeTab === 'scripts' && "📝 Generate text ad copy and spoken scripts. Perfect for social media captions, voiceovers, and planning your next ad campaign."}
               {activeTab === 'image' && "🖼️ Generate high-quality standalone images using Google's Imagen. Perfect for static posts, banners, and thumbnails."}
@@ -522,7 +522,7 @@ export default function DashboardPage({ user, setUser, onLogout, navigate }: Pro
         </div>
 
         {/* OUTPUT PANEL */}
-        <div className="p-8 lg:overflow-y-auto bg-[var(--dark)] flex-1 min-h-[50vh]">
+        <div className="p-4 lg:p-8 lg:overflow-y-auto overflow-y-auto bg-[var(--dark)] flex-1 min-w-0 min-h-0 pb-[100px]">
           {activeTab === 'scripts' && (
             !results && !loading ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-10">
