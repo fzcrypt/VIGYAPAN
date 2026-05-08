@@ -407,16 +407,16 @@ export default function DashboardPage({ user, setUser, onLogout, navigate }: Pro
 
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
         {/* FORM PANEL */}
-        <div className="flex flex-col border-b lg:border-r lg:border-b-0 border-[var(--border)] bg-[var(--card)] w-full lg:w-[360px] h-[50%] lg:h-full shrink-0 z-10 relative">
+        <div className="flex flex-col border-b lg:border-r lg:border-b-0 border-[var(--border)] bg-[var(--card)] w-full lg:w-[420px] h-[50%] lg:h-full shrink-0 z-10 relative">
           {/* TABS CONTAINER */}
-          <div className="flex shrink-0 border-b border-[var(--border)] bg-[#100800]">
-            <button onClick={() => setActiveTab('scripts')} className={`flex-1 py-4 px-1 text-[0.8rem] font-bold transition-colors border-b-[3px] text-center ${activeTab === 'scripts' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/60 border-transparent hover:text-white hover:bg-white/[0.05]'}`}>
+          <div className="flex shrink-0 bg-[#0d0700] p-3 gap-2 border-b border-[var(--border)] overflow-x-auto hide-scrollbar">
+            <button onClick={() => setActiveTab('scripts')} className={`flex-1 py-3 px-2 rounded-xl text-[0.85rem] font-bold transition-all text-center whitespace-nowrap min-w-[100px] border-2 ${activeTab === 'scripts' ? 'text-[#1A0700] bg-gradient-to-br from-[var(--saffron)] to-[var(--gold)] border-transparent shadow-[0_4px_12px_rgba(255,107,0,0.3)]' : 'text-white/60 bg-white/5 border-white/5 hover:text-white hover:bg-white/10'}`}>
               📝 Scripts
             </button>
-            <button onClick={() => setActiveTab('image')} className={`flex-1 py-4 px-1 text-[0.8rem] font-bold transition-colors border-b-[3px] text-center ${activeTab === 'image' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/60 border-transparent hover:text-white hover:bg-white/[0.05]'}`}>
+            <button onClick={() => setActiveTab('image')} className={`flex-1 py-3 px-2 rounded-xl text-[0.85rem] font-bold transition-all text-center whitespace-nowrap min-w-[100px] border-2 ${activeTab === 'image' ? 'text-[#1A0700] bg-gradient-to-br from-[var(--saffron)] to-[var(--gold)] border-transparent shadow-[0_4px_12px_rgba(255,107,0,0.3)]' : 'text-white/60 bg-white/5 border-white/5 hover:text-white hover:bg-white/10'}`}>
               🖼️ Images
             </button>
-            <button onClick={() => setActiveTab('video')} className={`flex-1 py-4 px-1 text-[0.8rem] font-bold transition-colors border-b-[3px] text-center ${activeTab === 'video' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/60 border-transparent hover:text-white hover:bg-white/[0.05]'}`}>
+            <button onClick={() => setActiveTab('video')} className={`flex-1 py-3 px-2 rounded-xl text-[0.85rem] font-bold transition-all text-center whitespace-nowrap min-w-[100px] border-2 ${activeTab === 'video' ? 'text-[#1A0700] bg-gradient-to-br from-[var(--saffron)] to-[var(--gold)] border-transparent shadow-[0_4px_12px_rgba(255,107,0,0.3)]' : 'text-white/60 bg-white/5 border-white/5 hover:text-white hover:bg-white/10'}`}>
               🎥 Videos
             </button>
           </div>
