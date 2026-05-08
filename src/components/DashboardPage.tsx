@@ -408,10 +408,17 @@ export default function DashboardPage({ user, setUser, onLogout, navigate }: Pro
       <div className="flex-1 flex flex-col lg:grid lg:grid-cols-[360px_1fr] lg:h-[calc(100vh-57px)]">
         {/* FORM PANEL */}
         <div className="flex flex-col border-b lg:border-r border-[var(--border)] bg-[var(--card)] relative z-10 w-full">
-          <div className="grid grid-cols-3 shrink-0 border-b border-[var(--border)]">
-            <button onClick={() => setActiveTab('scripts')} className={`py-4 text-[0.85rem] font-bold transition-colors border-b-2 text-center whitespace-nowrap ${activeTab === 'scripts' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/50 border-transparent hover:text-white/80'}`}>Scripts</button>
-            <button onClick={() => setActiveTab('image')} className={`py-4 text-[0.85rem] font-bold transition-colors border-b-2 text-center whitespace-nowrap ${activeTab === 'image' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/50 border-transparent hover:text-white/80'}`}>Images</button>
-            <button onClick={() => setActiveTab('video')} className={`py-4 text-[0.85rem] font-bold transition-colors border-b-2 text-center whitespace-nowrap ${activeTab === 'video' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/50 border-transparent hover:text-white/80'}`}>Videos</button>
+          {/* TABS CONTAINER */}
+          <div className="flex shrink-0 border-b border-[var(--border)] bg-[#100800]" style={{ display: 'flex', width: '100%', minHeight: '55px', overflowX: 'auto', backgroundColor: '#100800' }}>
+            <button onClick={() => setActiveTab('scripts')} className={`flex-1 py-4 px-2 text-[0.85rem] font-bold transition-colors border-b-[3px] text-center ${activeTab === 'scripts' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/60 border-transparent hover:text-white hover:bg-white/[0.05]'}`} style={{ minWidth: '100px' }}>
+              📝 Scripts
+            </button>
+            <button onClick={() => setActiveTab('image')} className={`flex-1 py-4 px-2 text-[0.85rem] font-bold transition-colors border-b-[3px] text-center ${activeTab === 'image' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/60 border-transparent hover:text-white hover:bg-white/[0.05]'}`} style={{ minWidth: '100px' }}>
+              🖼️ Images
+            </button>
+            <button onClick={() => setActiveTab('video')} className={`flex-1 py-4 px-2 text-[0.85rem] font-bold transition-colors border-b-[3px] text-center ${activeTab === 'video' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/60 border-transparent hover:text-white hover:bg-white/[0.05]'}`} style={{ minWidth: '100px' }}>
+              🎥 Videos
+            </button>
           </div>
           
           <div className="p-6 lg:overflow-y-auto flex-1 auto-rows-max">
