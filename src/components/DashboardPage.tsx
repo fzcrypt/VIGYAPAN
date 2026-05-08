@@ -405,16 +405,16 @@ export default function DashboardPage({ user, setUser, onLogout, navigate }: Pro
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden grid lg:grid-cols-[360px_1fr] h-[calc(100vh-57px)]">
+      <div className="flex-1 flex flex-col lg:grid lg:grid-cols-[360px_1fr] lg:h-[calc(100vh-57px)]">
         {/* FORM PANEL */}
-        <div className="flex flex-col border-r border-[var(--border)] bg-[var(--card)]">
-          <div className="flex border-b border-[var(--border)]">
-            <button onClick={() => setActiveTab('scripts')} className={`flex-1 py-4 text-[0.85rem] font-bold transition-colors border-b-2 ${activeTab === 'scripts' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/50 border-transparent hover:text-white/80'}`}>Scripts</button>
-            <button onClick={() => setActiveTab('image')} className={`flex-1 py-4 text-[0.85rem] font-bold transition-colors border-b-2 ${activeTab === 'image' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/50 border-transparent hover:text-white/80'}`}>Images</button>
-            <button onClick={() => setActiveTab('video')} className={`flex-1 py-4 text-[0.85rem] font-bold transition-colors border-b-2 ${activeTab === 'video' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/50 border-transparent hover:text-white/80'}`}>Videos</button>
+        <div className="flex flex-col border-b lg:border-r border-[var(--border)] bg-[var(--card)] relative z-10 w-full overflow-hidden">
+          <div className="flex shrink-0 border-b border-[var(--border)] overflow-x-auto hide-scrollbar">
+            <button onClick={() => setActiveTab('scripts')} className={`flex-1 min-w-max px-4 py-4 text-[0.85rem] font-bold transition-colors border-b-2 whitespace-nowrap ${activeTab === 'scripts' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/50 border-transparent hover:text-white/80'}`}>Scripts</button>
+            <button onClick={() => setActiveTab('image')} className={`flex-1 min-w-max px-4 py-4 text-[0.85rem] font-bold transition-colors border-b-2 whitespace-nowrap ${activeTab === 'image' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/50 border-transparent hover:text-white/80'}`}>Images</button>
+            <button onClick={() => setActiveTab('video')} className={`flex-1 min-w-max px-4 py-4 text-[0.85rem] font-bold transition-colors border-b-2 whitespace-nowrap ${activeTab === 'video' ? 'text-[var(--gold)] border-[var(--gold)] bg-white/5' : 'text-white/50 border-transparent hover:text-white/80'}`}>Videos</button>
           </div>
           
-          <div className="p-6 overflow-y-auto flex-1">
+          <div className="p-6 lg:overflow-y-auto flex-1 auto-rows-max">
             <div className="mb-6 p-4 rounded-xl bg-[var(--dark)] border border-[var(--border)] text-[0.85rem] text-white/70 leading-relaxed font-medium">
               {activeTab === 'scripts' && "📝 Generate text ad copy and spoken scripts. Perfect for social media captions, voiceovers, and planning your next ad campaign."}
               {activeTab === 'image' && "🖼️ Generate high-quality standalone images using Google's Imagen. Perfect for static posts, banners, and thumbnails."}
@@ -515,7 +515,7 @@ export default function DashboardPage({ user, setUser, onLogout, navigate }: Pro
         </div>
 
         {/* OUTPUT PANEL */}
-        <div className="p-8 overflow-y-auto bg-[var(--dark)]">
+        <div className="p-8 lg:overflow-y-auto bg-[var(--dark)] flex-1 min-h-[50vh]">
           {activeTab === 'scripts' && (
             !results && !loading ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-10">
